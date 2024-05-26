@@ -51,6 +51,23 @@ app.get("/data", async (req, res) => {
     res.send(data);
 });
 
+app.post("/data", async (req, res) => {
+    const { name, value } = req.body;
+    if (!name || !value) {
+        return res.status(400).send("Name and value are required");
+    }
+    // get the last item id and increment it by 1
+    const lastItem = await TestData.findOne().sort({ id: -1 });
+    const id = lastItem ? lastItem.id + 1 : 1;
+    const data = new TestData({ id, name, value });
+    await data.save();
+    // remove _id and __v from the response
+    data.id = data._id;
+    delete data._id;
+    delete data.__v;
+    res.send(data);
+});
+
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
