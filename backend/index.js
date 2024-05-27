@@ -33,10 +33,12 @@ const upload = multer({
     }),
 });
 
+const DB_URL =
+    process.env.MONGODB_URI ||
+    "mongodb://admin:password@localhost:27017/docker_starter?authSource=admin";
+
 mongoose
-    .connect(
-        "mongodb://admin:password@localhost:27017/docker_starter?authSource=admin"
-    )
+    .connect(DB_URL)
     .then(() => {
         console.log("Connected to MongoDB");
         // check if the collection is empty

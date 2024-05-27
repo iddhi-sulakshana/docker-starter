@@ -9,11 +9,16 @@ function App() {
     const [newItem, setNewItem] = useState({ name: "", value: "" });
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadedImages, setUploadedImages] = useState([]);
+    const [apiBaseUrl, setApiBaseUrl] = useState("");
 
     useEffect(() => {
-        // Fetch data from the backend
+        const apiUrl = window.__ENV__
+            ? window.__ENV__.BACKEND_URL
+            : "http://localhost:3000";
+        setApiBaseUrl(apiUrl);
+        if (!apiBaseUrl) return;
         axios
-            .get("http://localhost:3000/data")
+            .get(`${apiBaseUrl}/data`)
             .then((response) => {
                 setData(response.data);
                 setLoading(false);
@@ -25,14 +30,14 @@ function App() {
 
         // Fetch the list of uploaded images
         axios
-            .get("http://localhost:3000/imagelist")
+            .get(`${apiBaseUrl}/imagelist`)
             .then((response) => {
                 setUploadedImages(response.data);
             })
             .catch((error) => {
                 console.error("Error fetching images:", error);
             });
-    }, []);
+    }, [apiBaseUrl]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -42,7 +47,7 @@ function App() {
     const handleSubmit = (e) => {
         e.preventDefault();
         axios
-            .post("http://localhost:3000/data", newItem)
+            .post(`${apiBaseUrl}/data`, newItem)
             .then((response) => {
                 setData((prevData) => [...prevData, response.data]);
                 setNewItem({ name: "", value: "" });
@@ -64,7 +69,7 @@ function App() {
         formData.append("image", selectedFile);
 
         axios
-            .post("http://localhost:3000/upload", formData, {
+            .post(`${apiBaseUrl}/upload`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -91,7 +96,7 @@ function App() {
             return;
         }
         axios
-            .delete(`http://localhost:3000/image/${filename}`)
+            .delete(`${apiBaseUrl}/image/${filename}`)
             .then((response) => {
                 console.log("File deleted successfully:", response.data);
                 setUploadedImages((prevImages) =>
@@ -166,7 +171,7 @@ function App() {
                     {uploadedImages.map((filename, index) => (
                         <div key={index} className="image-item">
                             <img
-                                src={`http://localhost:3000/images/${filename}`}
+                                src={`${apiBaseUrl}/images/${filename}`}
                                 alt={`Uploaded ${filename}`}
                             />
                             <button onClick={() => handleDelete(filename)}>
