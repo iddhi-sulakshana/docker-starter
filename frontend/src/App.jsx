@@ -8,6 +8,7 @@ function App() {
     const [error, setError] = useState(null);
     const [newItem, setNewItem] = useState({ name: "", value: "" });
     const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadedImages, setUploadedImages] = useState([]);
 
     useEffect(() => {
         // Fetch data from the backend
@@ -20,6 +21,16 @@ function App() {
             .catch((error) => {
                 setError(error);
                 setLoading(false);
+            });
+
+        // Fetch the list of uploaded images
+        axios
+            .get("http://localhost:3000/imagelist")
+            .then((response) => {
+                setUploadedImages(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching images:", error);
             });
     }, []);
 
@@ -63,6 +74,10 @@ function App() {
                 window.alert("File uploaded successfully!");
                 setSelectedFile(null);
                 document.querySelector('input[type="file"]').value = "";
+                setUploadedImages((prevImages) => [
+                    ...prevImages,
+                    response.data.filename,
+                ]);
             })
             .catch((error) => {
                 console.error("There was an error uploading the file!", error);
@@ -74,56 +89,70 @@ function App() {
     if (error) return <p>Error loading data: {error.message}</p>;
 
     return (
-        <div>
-            <h1>Data Table</h1>
-            <table className="styled-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((item) => (
-                        <tr key={item.id}>
-                            <td>{item.id}</td>
-                            <td>{item.name}</td>
-                            <td>{item.value}</td>
+        <div className="container">
+            <div>
+                <h1>Data Table</h1>
+                <table className="styled-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Value</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        {data.map((item) => (
+                            <tr key={item.id}>
+                                <td>{item.id}</td>
+                                <td>{item.name}</td>
+                                <td>{item.value}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <h2>Add New Item</h2>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        name="name"
+                        value={newItem.name}
+                        onChange={handleInputChange}
+                        placeholder="Name"
+                        required
+                    />
+                    <input
+                        type="number"
+                        name="value"
+                        value={newItem.value}
+                        onChange={handleInputChange}
+                        placeholder="Value"
+                        required
+                    />
+                    <button type="submit">Add Item</button>
+                </form>
+            </div>
+            <div>
+                <h2>Upload Image</h2>
+                <form onSubmit={handleFileUpload}>
+                    <input
+                        type="file"
+                        onChange={handleFileChange}
+                        required
+                        accept="image/png, image/jpeg"
+                    />
+                    <button type="submit">Upload Image</button>
+                </form>
+                <h2>Uploaded Images</h2>
+                <div className="image-gallery">
+                    {uploadedImages.map((filename, index) => (
+                        <img
+                            key={index}
+                            src={`http://localhost:3000/images/${filename}`}
+                            alt={`Uploaded ${filename}`}
+                        />
                     ))}
-                </tbody>
-            </table>
-            <h2>Add New Item</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="name"
-                    value={newItem.name}
-                    onChange={handleInputChange}
-                    placeholder="Name"
-                    required
-                />
-                <input
-                    type="number"
-                    name="value"
-                    value={newItem.value}
-                    onChange={handleInputChange}
-                    placeholder="Value"
-                    required
-                />
-                <button type="submit">Add Item</button>
-            </form>
-            <h2>Upload Image</h2>
-            <form onSubmit={handleFileUpload}>
-                <input
-                    type="file"
-                    onChange={handleFileChange}
-                    required
-                    accept="image/png, image/jpeg"
-                />
-                <button type="submit">Upload Image</button>
-            </form>
+                </div>
+            </div>
         </div>
     );
 }

@@ -4,6 +4,10 @@ import mongoose from "mongoose";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const TestData = mongoose.model(
     "TestData",
@@ -55,6 +59,7 @@ mongoose
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.get("/", (req, res) => {
     res.send("Hello World");
@@ -98,6 +103,15 @@ app.post("/upload", upload.single("image"), (req, res) => {
     });
 });
 
+app.get("/imagelist", (req, res) => {
+    fs.readdir("images", (err, files) => {
+        if (err) {
+            return res.status(500).send("Unable to scan directory");
+        }
+        res.send(files);
+    });
+});
+
 app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+    console.log("Server is running on http://localhost:3000");
 });
