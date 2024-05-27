@@ -112,6 +112,18 @@ app.get("/imagelist", (req, res) => {
     });
 });
 
+app.delete("/image/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, "images", filename);
+
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            return res.status(500).send("Failed to delete file");
+        }
+        res.status(200).send("File deleted successfully");
+    });
+});
+
 app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");
 });

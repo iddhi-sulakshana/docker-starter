@@ -85,6 +85,25 @@ function App() {
             });
     };
 
+    const handleDelete = (filename) => {
+        // confirm before deleting the file
+        if (!window.confirm("Are you sure you want to delete this file?")) {
+            return;
+        }
+        axios
+            .delete(`http://localhost:3000/image/${filename}`)
+            .then((response) => {
+                console.log("File deleted successfully:", response.data);
+                setUploadedImages((prevImages) =>
+                    prevImages.filter((image) => image !== filename)
+                );
+                window.alert("File deleted successfully!");
+            })
+            .catch((error) => {
+                console.error("There was an error deleting the file!", error);
+            });
+    };
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error loading data: {error.message}</p>;
 
@@ -145,11 +164,15 @@ function App() {
                 <h2>Uploaded Images</h2>
                 <div className="image-gallery">
                     {uploadedImages.map((filename, index) => (
-                        <img
-                            key={index}
-                            src={`http://localhost:3000/images/${filename}`}
-                            alt={`Uploaded ${filename}`}
-                        />
+                        <div key={index} className="image-item">
+                            <img
+                                src={`http://localhost:3000/images/${filename}`}
+                                alt={`Uploaded ${filename}`}
+                            />
+                            <button onClick={() => handleDelete(filename)}>
+                                Delete
+                            </button>
+                        </div>
                     ))}
                 </div>
             </div>
