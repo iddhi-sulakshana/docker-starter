@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const TestData = mongoose.model(
     "TestData",
@@ -11,8 +14,25 @@ const TestData = mongoose.model(
     })
 );
 
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            const uploadPath = "images/";
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath);
+            }
+            cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+            cb(null, Date.now() + path.extname(file.originalname));
+        },
+    }),
+});
+
 mongoose
-    .connect("mongodb://localhost:27017/docker_starter")
+    .connect(
+        "mongodb://admin:password@localhost:27017/docker_starter?authSource=admin"
+    )
     .then(() => {
         console.log("Connected to MongoDB");
         // check if the collection is empty
@@ -66,6 +86,16 @@ app.post("/data", async (req, res) => {
     delete data._id;
     delete data.__v;
     res.send(data);
+});
+
+app.post("/upload", upload.single("image"), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "Please upload a file" });
+    }
+    res.status(200).json({
+        message: "File uploaded successfully",
+        filename: req.file.filename,
+    });
 });
 
 app.listen(3000, () => {

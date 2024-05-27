@@ -7,6 +7,7 @@ function App() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [newItem, setNewItem] = useState({ name: "", value: "" });
+    const [selectedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
         // Fetch data from the backend
@@ -39,6 +40,33 @@ function App() {
             .catch((error) => {
                 console.error("There was an error inserting the data!", error);
                 window.alert("There was an error inserting the data!");
+            });
+    };
+
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]);
+    };
+
+    const handleFileUpload = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+
+        axios
+            .post("http://localhost:3000/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+            .then((response) => {
+                console.log("File uploaded successfully:", response.data);
+                window.alert("File uploaded successfully!");
+                setSelectedFile(null);
+                document.querySelector('input[type="file"]').value = "";
+            })
+            .catch((error) => {
+                console.error("There was an error uploading the file!", error);
+                window.alert("There was an error uploading the file!");
             });
     };
 
@@ -85,6 +113,16 @@ function App() {
                     required
                 />
                 <button type="submit">Add Item</button>
+            </form>
+            <h2>Upload Image</h2>
+            <form onSubmit={handleFileUpload}>
+                <input
+                    type="file"
+                    onChange={handleFileChange}
+                    required
+                    accept="image/png, image/jpeg"
+                />
+                <button type="submit">Upload Image</button>
             </form>
         </div>
     );
