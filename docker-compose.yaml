@@ -1,7 +1,7 @@
 version: "3.8"
 services:
     frontend:
-        image: frontend
+        image: iddhi/docker-starter-frontend
         build:
             context: ./frontend
         ports:
@@ -12,7 +12,7 @@ services:
             - backend
 
     backend:
-        image: backend
+        image: iddhi/docker-starter-backend
         build:
             context: ./backend
         ports:
