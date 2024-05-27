@@ -1,21 +1,18 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css"; // Import the CSS file
+import BACKEND_URL from "./URL";
 
 function App() {
+    const apiBaseUrl = BACKEND_URL;
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [newItem, setNewItem] = useState({ name: "", value: "" });
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadedImages, setUploadedImages] = useState([]);
-    const [apiBaseUrl, setApiBaseUrl] = useState("");
 
     useEffect(() => {
-        const apiUrl = window.__ENV__
-            ? window.__ENV__.BACKEND_URL
-            : "http://localhost:3000";
-        setApiBaseUrl(apiUrl);
         if (!apiBaseUrl) return;
         axios
             .get(`${apiBaseUrl}/data`)

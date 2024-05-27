@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+    frontend:
+        image: frontend
+        build:
+            context: ./frontend
+        ports:
+            - "80:80"
+        environment:
+            - BACKEND_URL=http://localhost:3000
+        depends_on:
+            - backend
+
+    backend:
+        image: backend
+        build:
+            context: ./backend
+        ports:
+            - "3000:3000"
+        environment:
+            - MONGODB_URI=mongodb://admin:password@mongodb:27017/docker_starter?authSource=admin
+        volumes:
+            - image_uploads:/usr/src/app/images
+        depends_on:
+            - mongodb
+
+    mongodb:
+        image: mongo:6.0.15-rc0-jammy
+        container_name: mongodb
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=admin
+            - MONGO_INITDB_ROOT_PASSWORD=password
+
+volumes:
+    image_uploads:
+        external: true
