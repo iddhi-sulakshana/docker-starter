@@ -1,5 +1,5 @@
 # Docker Starter
-
+This includes Boilerplate for getting started with MERN stack, pre-configured with Docker.
 This repository provides a basic setup for a full-stack application with a React frontend and an Express backend, using Docker for containerization. The frontend is hosted on Vercel, and the backend is hosted on Render.
 
 ## Table of Contents
